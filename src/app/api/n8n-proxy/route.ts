@@ -1,9 +1,20 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function POST(request: Request) {
-  const { task, user_identifier } = await request.json();
+export async function GET(request: NextRequest) {
+  const task = request.nextUrl.searchParams.get('task');
+  const user_identifier = request.nextUrl.searchParams.get('user_identifier');
 
-  const n8nWebhookUrl = process.env.N8N_WEBHOOK_URL;
+  if (!task || !user_identifier) {
+    return NextResponse.json(
+      { error: 'Missing task or user_identifier query parameter.' },
+      { status: 400 }
+    );
+  }
+
+  const n8nWebhookUrl =
+    process.env.NODE_ENV === 'production'
+      ? process.env.N8N_WEBHOOK_URL_PROD
+      : process.env.N8N_WEBHOOK_URL_TEST;
 
   if (!n8nWebhookUrl) {
     return NextResponse.json(
@@ -13,12 +24,12 @@ export async function POST(request: Request) {
   }
 
   try {
-    const n8nResponse = await fetch(n8nWebhookUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ task, user_identifier }),
+    const url = new URL(n8nWebhookUrl);
+    url.searchParams.append('task', task);
+    url.searchParams.append('user_identifier', user_identifier);
+
+    const n8nResponse = await fetch(url.toString(), {
+      method: 'GET',
     });
 
     if (!n8nResponse.ok) {
@@ -30,11 +41,9 @@ export async function POST(request: Request) {
       );
     }
 
-    // The N8N workflow might respond with some data, which we can pass back to the client if needed.
     const responseData = await n8nResponse.json();
 
     return NextResponse.json(responseData, { status: 200 });
-
   } catch (error) {
     console.error('Error forwarding request to N8N:', error);
     return NextResponse.json(

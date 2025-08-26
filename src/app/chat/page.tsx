@@ -14,13 +14,13 @@ export default function Chat() {
     setResponse('');
 
     try {
-      // Call our own API proxy instead of N8N directly
-      const res = await fetch('/api/n8n-proxy', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ task: message, user_identifier: userIdentifier }),
+      const params = new URLSearchParams({
+        task: message,
+        user_identifier: userIdentifier,
+      });
+      
+      const res = await fetch(`/api/n8n-proxy?${params.toString()}`, {
+        method: 'GET',
       });
 
       if (res.ok) {

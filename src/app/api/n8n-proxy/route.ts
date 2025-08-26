@@ -16,7 +16,11 @@ export async function POST(request: Request) {
   }
 
   try {
-    const n8nResponse = await fetch(n8nWebhookUrl, {
+    const url = new URL(n8nWebhookUrl);
+    url.searchParams.append('task', task);
+    url.searchParams.append('user_identifier', user_identifier);
+
+    const n8nResponse = await fetch(url.toString(), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

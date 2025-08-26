@@ -13,17 +13,9 @@ export default function Chat() {
     setIsLoading(true);
     setResponse('');
 
-    // The user will need to replace this with their N8N webhook URL
-    const webhookUrl = 'https://chipmoreno.app.n8n.cloud/webhook/2a1586c7-e742-48f8-af09-f86cdd064e46';
-
-    /*if (webhookUrl === 'YOUR_N8N_WEBHOOK_URL_HERE') {
-        setResponse('Please replace the placeholder N8N webhook URL in the code.');
-        setIsLoading(false);
-        return;
-    }*/
-
     try {
-      const res = await fetch(webhookUrl, {
+      // Call our own API proxy instead of N8N directly
+      const res = await fetch('/api/n8n-proxy', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -36,11 +28,11 @@ export default function Chat() {
         setMessage('');
       } else {
         const errorData = await res.json();
-        setResponse(`Error: ${errorData.message || 'Something went wrong.'}`);
+        setResponse(`Error: ${errorData.error || 'Something went wrong.'}`);
       }
     } catch (error) {
-      console.error('Error sending request to N8N:', error);
-      setResponse('Error: Could not connect to the N8N workflow.');
+      console.error('Error sending request:', error);
+      setResponse('An unexpected error occurred.');
     }
 
     setIsLoading(false);

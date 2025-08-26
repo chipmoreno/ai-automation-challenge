@@ -14,13 +14,12 @@ export default function Chat() {
     setResponse('');
 
     try {
-      const params = new URLSearchParams({
-        task: message,
-        user_identifier: userIdentifier,
-      });
-      
-      const res = await fetch(`/api/n8n-proxy?${params.toString()}`, {
-        method: 'GET',
+      const res = await fetch('/api/n8n-proxy', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ task: message, user_identifier: userIdentifier }),
       });
 
       if (res.ok) {

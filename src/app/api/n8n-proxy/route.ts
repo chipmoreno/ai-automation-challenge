@@ -1,15 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
-  const task = request.nextUrl.searchParams.get('task');
-  const user_identifier = request.nextUrl.searchParams.get('user_identifier');
-
-  if (!task || !user_identifier) {
-    return NextResponse.json(
-      { error: 'Missing task or user_identifier query parameter.' },
-      { status: 400 }
-    );
-  }
+export async function POST(request: Request) {
+  const { task, user_identifier } = await request.json();
 
   const n8nWebhookUrl =
     process.env.NODE_ENV === 'production'
@@ -24,12 +16,12 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const url = new URL(n8nWebhookUrl);
-    url.searchParams.append('task', task);
-    url.searchParams.append('user_identifier', user_identifier);
-
-    const n8nResponse = await fetch(url.toString(), {
-      method: 'GET',
+    const n8nResponse = await fetch(n8nWebhookUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ task, user_identifier }),
     });
 
     if (!n8nResponse.ok) {

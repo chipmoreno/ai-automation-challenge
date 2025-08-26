@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabaseClient";
 
 type Todo = {
@@ -16,13 +16,7 @@ export default function Home() {
   const [editingTodo, setEditingTodo] = useState<Todo | null>(null);
   const [userIdentifier, setUserIdentifier] = useState("test@example.com");
 
-  useEffect(() => {
-    if (userIdentifier) {
-      fetchTodos();
-    }
-  }, [userIdentifier]);
-
-  const fetchTodos = async () => {
+  const fetchTodos = useCallback(async () => {
     const { data, error } = await supabase
       .from("todos")
       .select("*")
@@ -34,7 +28,13 @@ export default function Home() {
     } else {
       setTodos(data);
     }
-  };
+  }, [userIdentifier]);
+
+  useEffect(() => {
+    if (userIdentifier) {
+      fetchTodos();
+    }
+  }, [userIdentifier, fetchTodos]);
 
   const addTodo = async (e: React.FormEvent) => {
     e.preventDefault();

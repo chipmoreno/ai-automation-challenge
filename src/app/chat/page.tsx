@@ -14,13 +14,13 @@ export default function Chat() {
     setResponse('');
 
     // The user will need to replace this with their N8N webhook URL
-    const webhookUrl = 'YOUR_N8N_WEBHOOK_URL_HERE';
+    const webhookUrl = 'https://chipmoreno.app.n8n.cloud/webhook/2a1586c7-e742-48f8-af09-f86cdd064e46';
 
-    if (webhookUrl === 'YOUR_N8N_WEBHOOK_URL_HERE') {
+    /*if (webhookUrl === 'YOUR_N8N_WEBHOOK_URL_HERE') {
         setResponse('Please replace the placeholder N8N webhook URL in the code.');
         setIsLoading(false);
         return;
-    }
+    }*/
 
     try {
       const res = await fetch(webhookUrl, {
